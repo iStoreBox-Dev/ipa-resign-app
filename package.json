@@ -1,0 +1,23 @@
+{
+  "name": "ipa-resign-app",
+  "version": "1.0.0",
+  "description": "Web application and API for resigning iOS IPA files using zsign",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["ios", "ipa", "resign", "zsign", "api"],
+  "author": "iStoreBox-Dev",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

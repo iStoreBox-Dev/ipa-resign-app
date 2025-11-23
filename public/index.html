@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPA Resign Tool - zsign</title>
+    <style>
+        :root {
+            --color-primary: #007AFF;
+            --color-success: #34C759;
+            --color-error: #FF3B30;
+            --color-bg: #F2F2F7;
+            --color-card: #FFFFFF;
+            --color-text: #000000;
+            --color-text-secondary: #8E8E93;
+            --color-border: #C6C6C8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--color-primary);
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: var(--color-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .label-description {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border: 2px dashed var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--color-bg);
+        }
+
+        .file-input-label:hover {
+            border-color: var(--color-primary);
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .file-name {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .file-selected {
+            color: var(--color-success);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0051D5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-bg);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: rgba(52, 199, 89, 0.1);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+        .alert-error {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--color-error);
+            border: 1px solid var(--color-error);
+        }
+
+        .result-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .result-links a {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .link-download {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .link-install {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .link-download:hover,
+        .link-install:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-box {
+            background: rgba(0, 122, 255, 0.05);
+            border-left: 4px solid var(--color-primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 8px;
+            color: var(--color-primary);
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+        }
+
+        .info-box li {
+            margin-bottom: 6px;
+            color: var(--color-text-secondary);
+        }
+
+        .files-section {
+            margin-top: 40px;
+        }
+
+        .files-list {
+            list-style: none;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--color-bg);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-info h4 {
+            margin-bottom: 4px;
+        }
+
+        .file-meta {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 122, 255, 0.1);
+            border-top: 3px solid var(--color-primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .result-links {
+                flex-direction: column;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .file-actions {
+                margin-top: 12px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔏 IPA Resign Tool</h1>
+            <p class="subtitle">Resign iOS applications with your certificates using zsign</p>
+        </header>
+
+        <div class="card">
+            <div id="alertSuccess" class="alert alert-success"></div>
+            <div id="alertError" class="alert alert-error"></div>
+
+            <form id="resignForm">
+                <div class="form-group">
+                    <label for="ipaFile">
+                        IPA File
+                        <span class="label-description">Select the iOS application (.ipa) to resign</span>
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="ipaFile" name="ipa" accept=".ipa" required>
+                        <div class="file-input-label">
+                            <span class="file-name" id="ipaFileName">Choose IPA file...</span>
+                            <span>📁</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="certFile">
+                        P12 Certificate
+                        <span class="label-description">Your signing certificate (.p12)</span>
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="certFile" name="certificate" accept=".p12" required>
+                        <div class="file-input-label">
+                            <span class="file-name" id="certFileName">Choose P12 file...</span>
+                            <span>🔐</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="provisionFile">
+                        Provisioning Profile
+                        <span class="label-description">Mobile provisioning profile (.mobileprovision)</span>
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="provisionFile" name="provision" accept=".mobileprovision" required>
+                        <div class="file-input-label">
+                            <span class="file-name" id="provisionFileName">Choose provision file...</span>
+                            <span>📄</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        Certificate Password
+                        <span class="label-description">Password for the P12 certificate (optional)</span>
+                    </label>
+                    <input type="password" id="password" name="password" placeholder="Enter password (if required)">
+                </div>
+
+                <div class="form-group">
+                    <label for="bundleId">
+                        Bundle Identifier
+                        <span class="label-description">Custom bundle ID (optional, e.g., com.yourcompany.app)</span>
+                    </label>
+                    <input type="text" id="bundleId" name="bundleId" placeholder="com.example.app">
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span id="btnText">Sign IPA</span>
+                </button>
+
+                <div class="progress" id="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Uploading...</div>
+                </div>
+            </form>
+
+            <div class="info-box">
+                <h3>📋 Instructions</h3>
+                <ul>
+                    <li>Upload your IPA file that needs to be resigned</li>
+                    <li>Provide your P12 certificate (exported from Keychain Access)</li>
+                    <li>Include the matching provisioning profile</li>
+                    <li>Optionally specify a certificate password and custom bundle ID</li>
+                    <li>Click "Sign IPA" to start the resigning process</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card files-section" id="filesSection" style="display: none;">
+            <h2>📦 Signed Files</h2>
+            <ul class="files-list" id="filesList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // File input handlers
+        document.getElementById('ipaFile').addEventListener('change', function(e) {
+            updateFileName('ipaFileName', e.target.files[0]);
+        });
+
+        document.getElementById('certFile').addEventListener('change', function(e) {
+            updateFileName('certFileName', e.target.files[0]);
+        });
+
+        document.getElementById('provisionFile').addEventListener('change', function(e) {
+            updateFileName('provisionFileName', e.target.files[0]);
+        });
+
+        function updateFileName(elementId, file) {
+            const element = document.getElementById(elementId);
+            if (file) {
+                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                element.textContent = `${file.name} (${sizeInMB} MB)`;
+                element.classList.add('file-selected');
+            }
+        }
+
+        // Form submission
+        document.getElementById('resignForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('ipa', document.getElementById('ipaFile').files[0]);
+            formData.append('certificate', document.getElementById('certFile').files[0]);
+            formData.append('provision', document.getElementById('provisionFile').files[0]);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('bundleId', document.getElementById('bundleId').value);
+
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const progress = document.getElementById('progress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            try {
+                submitBtn.disabled = true;
+                btnText.innerHTML = '<span class="spinner"></span>Processing...';
+                progress.style.display = 'block';
+                hideAlerts();
+
+                // Simulate progress
+                let progressValue = 0;
+                const progressInterval = setInterval(() => {
+                    progressValue += 5;
+                    if (progressValue <= 90) {
+                        progressFill.style.width = progressValue + '%';
+                    }
+                }, 200);
+
+                const response = await fetch('/api/sign', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess(`IPA signed successfully! File: ${result.data.fileName}`);
+                    displayResultLinks(result.data);
+                    loadFiles();
+                } else {
+                    showError(result.error || 'Failed to sign IPA');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Sign IPA';
+                setTimeout(() => {
+                    progress.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 1000);
+            }
+        });
+
+        function displayResultLinks(data) {
+            const alertSuccess = document.getElementById('alertSuccess');
+            const linksHtml = `
+                <div class="result-links">
+                    <a href="${data.downloadUrl}" class="link-download" download>⬇️ Download IPA</a>
+                    <a href="${data.installUrl}" class="link-install">📱 Install on Device</a>
+                </div>
+            `;
+            alertSuccess.innerHTML += linksHtml;
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('alertSuccess');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            scrollToTop();
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('alertError');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            scrollToTop();
+        }
+
+        function hideAlerts() {
+            document.getElementById('alertSuccess').style.display = 'none';
+            document.getElementById('alertError').style.display = 'none';
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Load signed files
+        async function loadFiles() {
+            try {
+                const response = await fetch('/api/files');
+                const result = await response.json();
+
+                if (result.success && result.files.length > 0) {
+                    const filesSection = document.getElementById('filesSection');
+                    const filesList = document.getElementById('filesList');
+
+                    filesSection.style.display = 'block';
+                    filesList.innerHTML = result.files.map(file => `
+                        <li class="file-item">
+                            <div class="file-info">
+                                <h4>${file.name}</h4>
+                                <div class="file-meta">
+                                    ${(file.size / (1024 * 1024)).toFixed(2)} MB • 
+                                    ${new Date(file.created).toLocaleString()}
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <a href="${file.downloadUrl}" class="btn btn-primary btn-sm" download>Download</a>
+                                <button onclick="deleteFile('${file.name}')" class="btn btn-sm" style="background: var(--color-error); color: white;">Delete</button>
+                            </div>
+                        </li>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load files:', error);
+            }
+        }
+
+        async function deleteFile(filename) {
+            if (!confirm(`Delete ${filename}?`)) return;
+
+            try {
+                const response = await fetch(`/api/files/${filename}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    loadFiles();
+                    showSuccess('File deleted successfully');
+                } else {
+                    showError('Failed to delete file');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        // Load files on page load
+        loadFiles();
+    </script>
+</body>
+</html>
